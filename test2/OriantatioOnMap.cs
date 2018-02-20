@@ -9,7 +9,7 @@ using Emgu.CV.Flann;
 using Emgu.CV.Features2D;
 using Emgu.CV.CvEnum;
 
-namespace test2
+namespace UVAPositioning
 {
     struct SIFTParametrs
     {

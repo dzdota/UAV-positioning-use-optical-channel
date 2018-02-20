@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace test2
+namespace UVAPositioning
 {
     /// <summary>
     /// Interaction logic for App.xaml

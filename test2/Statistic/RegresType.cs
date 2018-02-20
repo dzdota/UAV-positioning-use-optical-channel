@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace testgistogr
+namespace Statistic
 {
     public static class RegresTypeName
     {

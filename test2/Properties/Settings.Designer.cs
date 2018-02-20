@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace test2.Properties
+namespace UVAPositioning.Properties
 {
 
 

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace test2
+namespace UVAPositioning
 {
 
     class Aircraft

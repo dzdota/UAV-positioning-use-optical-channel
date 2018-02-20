@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace testgistogr
+namespace Statistic
 {
     #region "Exception in the Library"
     class MatrixLibraryExceptions : ApplicationException

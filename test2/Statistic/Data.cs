@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace testgistogr
+namespace Statistic
 {
     [Serializable]
     public class Data

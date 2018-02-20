@@ -22,7 +22,7 @@ using System.Windows.Forms;
 
 using OpenCL.Net;
 
-namespace test2
+namespace UVAPositioning
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
