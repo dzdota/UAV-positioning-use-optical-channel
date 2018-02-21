@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Copyright (c) 2011 rubicon IT GmbH
+using System;
 using System.Collections.Generic;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -45,13 +46,13 @@ namespace UVAPositioning
             Mat mask = null;
             Rectangle zone = new Rectangle();
             Mat result = new Mat();
-            FindLocateMap(SubMap, ref VectorSubMapKeyPoint, ref SubMapDiscriptors, ref matches, ref mask, ref zone, k, uniquenessThreshold, parametrs);
+            FindMatches(SubMap, ref VectorSubMapKeyPoint, ref SubMapDiscriptors, ref matches, ref mask, ref zone, k, uniquenessThreshold, parametrs);
             Features2DToolbox.DrawMatches(SubMap, VectorSubMapKeyPoint, Map, VectorMapKeyPoint, matches, 
                 result, new MCvScalar(0, 255, 0), new MCvScalar(0, 0, 255), mask, Features2DToolbox.KeypointDrawType.DrawRichKeypoints);
             return new Image<Rgb, byte>(result.Bitmap);
         }
 
-        public void FindLocateMap(Image<Rgb, byte> SubMap, ref VectorOfKeyPoint VectorSubMapKeyPoint, 
+        public void FindMatches(Image<Rgb, byte> SubMap, ref VectorOfKeyPoint VectorSubMapKeyPoint, 
             ref Mat SubMapDiscriptors, ref VectorOfVectorOfDMatch matches, ref Mat mask, ref Rectangle zone, int k, double uniquenessThreshold, SIFTParametrs parametrs)
         {
             VectorSubMapKeyPoint = new VectorOfKeyPoint();
@@ -69,6 +70,8 @@ namespace UVAPositioning
                 matcher.Add(SubMapDiscriptors);
                 matcher.KnnMatch(MapDiscriptors, matches, k, null);
             }
+
+            var array = matches.ToArrayOfArray();
 
             mask = new Mat(matches.Size, 1, DepthType.Cv8U, 1);
             mask.SetTo(new MCvScalar(255));
@@ -88,9 +91,6 @@ namespace UVAPositioning
 
         }
 
-
-
-
         private VectorOfKeyPoint FilterKeyPoint(VectorOfKeyPoint InputVecor, Image<Rgb, byte> SourceImage, double Compression, double Diameter, SIFTParametrs parametrs)
         {
             VectorOfKeyPoint OutputVector = null;
@@ -103,7 +103,8 @@ namespace UVAPositioning
             }
             return OutputVector;
         }
-        private MKeyPoint[] RemoveFakeKeyPoint(VectorOfKeyPoint MainVecor, VectorOfKeyPoint InputVecor, double Compression, double Diameter)
+
+        private MKeyPoint[] RemoveFakeKeyPoint(VectorOfKeyPoint MainVecor, VectorOfKeyPoint InputVecor, double Compression, double Radius)
         {
             List<MKeyPoint> InputListKeyPoint = new List<MKeyPoint>(InputVecor.ToArray());
             List<MKeyPoint> OutputVector = new List<MKeyPoint>();
@@ -113,7 +114,8 @@ namespace UVAPositioning
                 {
                     PointF InputLocate = InputListKeyPoint[j].Point;
                     PointF MainLocate = MainVecor[i].Point;
-                    if (Math.Pow(MainLocate.X * Compression - InputLocate.X, 2) + Math.Pow(MainLocate.Y * Compression - InputLocate.Y, 2) <= Math.Pow(Diameter, 2))
+                    if (Math.Pow(MainLocate.X * Compression - InputLocate.X, 2) + 
+                        Math.Pow(MainLocate.Y * Compression - InputLocate.Y, 2) <= Math.Pow(Radius, 2))
                     {
                         OutputVector.Add(InputListKeyPoint[j]);
                         InputListKeyPoint.RemoveAt(j);

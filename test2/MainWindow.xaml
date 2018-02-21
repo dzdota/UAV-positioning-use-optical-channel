@@ -37,7 +37,10 @@
             <TabItem Header="Зображення для імітації польоту">
                 <Grid Background="#11E5E5E5">
                     <GroupBox HorizontalAlignment="Left" BorderBrush="Black">
-                        <Image x:Name="imageBoxfromAircraft" HorizontalAlignment="Left" Width="945" Height="565" VerticalAlignment="Top" MouseRightButtonDown="imageBox1_MouseRightButtonDown" RenderTransformOrigin="0.5,0.5"/>
+                        <Grid Background="#11E5E5E5">
+                            <Image x:Name="imageBoxfromAircraft" HorizontalAlignment="Left" Width="945" Height="565" VerticalAlignment="Top" MouseRightButtonDown="ImageBox1_MouseRightButtonDown" RenderTransformOrigin="0.5,0.5"/>
+                            <Image x:Name="imageBoxMiniMap" HorizontalAlignment="Left" Margin="645,365,0,0" Width="300" Height="200" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"/>
+                        </Grid>
                     </GroupBox>
                     <GroupBox HorizontalAlignment="Right" Margin="5,10,5,10" Height="550" VerticalAlignment="Top" Width="310" BorderBrush="Black">
                         <Grid>

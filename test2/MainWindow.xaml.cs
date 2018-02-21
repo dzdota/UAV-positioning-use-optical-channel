@@ -13,14 +13,9 @@ using Emgu.CV.Util;
 using Emgu.CV.Flann;
 using Emgu.CV.Features2D;
 using Emgu.CV.CvEnum;
-using Emgu.CV.Cuda;
-using Emgu.CV.ML;
 
 using System.Collections.Generic;
 using System.Windows.Forms;
-
-
-using OpenCL.Net;
 
 namespace UVAPositioning
 {
@@ -66,11 +61,8 @@ namespace UVAPositioning
             imgbrush.EndInit();
             imageBoxfromAircraft.Source = imgbrush;
         }
-        public void SetImage(Image<Rgb, byte> image)
+        public void SetMap(Image<Rgb, byte> image)
         {
-            /*double Transform = Math.Max(oriantation.Map.Width / imageBox1.Width,
-                oriantation.Map.Height / imageBox1.Height);
-            image = image.Resize(Transform, Inter.Area);*/
             if (ShowGridCheckBox.IsChecked == true)
                 image = ImageTransform.SetGrid(image, GridSize);
             if (ShowKeyPointCheckBox.IsChecked == true && oriantation != null)
@@ -83,11 +75,12 @@ namespace UVAPositioning
             imgbrush.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
             imgbrush.EndInit();
             imageBox1.Source = imgbrush;
+            imageBoxMiniMap.Source = imgbrush;
             image.Save("outputimage.bmp");
         }
 
-        [Obsolete("")]
-        public Bitmap drawSift(Image<Rgb, byte> modelimage, Image<Rgb, byte> observedimage)
+        [Obsolete("Use OriantationOnMap")]
+        public Bitmap DrawSift(Image<Rgb, byte> modelimage, Image<Rgb, byte> observedimage)
         {
             int k = 2;
             double uniquenessThreshold = 0.80;
@@ -199,7 +192,7 @@ namespace UVAPositioning
             return result;
         }
 
-        private void imageBox1_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void ImageBox1_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Point position = e.GetPosition(imageBoxfromAircraft);
             double Transform = Math.Max(imagefromAircraft.Width / imageBoxfromAircraft.Width,
@@ -236,7 +229,7 @@ namespace UVAPositioning
                     Mat SourceMat = new Mat(openFileDialog.FileName, ImreadModes.AnyColor);
                     Image<Rgb, byte> source = new Image<Rgb, byte>(SourceMat.Bitmap);
                     oriantation = new OriantatioOnMap(source,parametrs, Compression, Diameter);
-                    SetImage(source);
+                    SetMap(source);
                 }
                 catch { }
             }
@@ -257,7 +250,7 @@ namespace UVAPositioning
             }
             GridSize = new System.Drawing.Point(ColumnCount, RowCount);
             if (oriantation != null)
-                SetImage(oriantation.Map);
+                SetMap(oriantation.Map);
         }
 
         private void CompressionTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -317,7 +310,7 @@ namespace UVAPositioning
             { return; }
             Image<Rgb, byte> SubMap = 
                 aircraft.NextLocate(imagefromAircraft/*oriantation.Map*/, new System.Drawing.Point(width, height));
-            SetImage(oriantation.ShowMatches(SubMap, k, uniquenessThreshold,parametrs));
+            SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold,parametrs));
 
         }
     }
