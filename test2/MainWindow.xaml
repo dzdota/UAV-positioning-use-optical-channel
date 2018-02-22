@@ -6,6 +6,14 @@
         xmlns:local="clr-namespace:UVAPositioning"
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1300">
+    <Window.Resources>
+        <ContextMenu x:Key="AircraftMenu">
+            <MenuItem Header="Згладити за допомогою Гаусяна" Click="MenuItem_Click"/>
+            <MenuItem Header="Двухсторонье згладжування" Click="MenuItem_Click_2"/>
+            <MenuItem Header="Згладити за допомогою Медіан" Click="MenuItem_Click_3"/>
+            <MenuItem Header="Додати шум"  Click="MenuItem_Click_1"/>
+        </ContextMenu>
+    </Window.Resources>
     <Grid>
         <TabControl HorizontalAlignment="Left" Margin="5,40,0,0" Height="600" VerticalAlignment="Top" Width="1290" >
             <TabItem Header="Мапа">
@@ -35,10 +43,10 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Зображення для імітації польоту">
-                <Grid Background="#11E5E5E5">
+                <Grid Background="#11E5E5E5" ContextMenu="{StaticResource AircraftMenu}">
                     <GroupBox HorizontalAlignment="Left" BorderBrush="Black">
                         <Grid Background="#11E5E5E5">
-                            <Image x:Name="imageBoxfromAircraft" HorizontalAlignment="Left" Width="945" Height="565" VerticalAlignment="Top" MouseRightButtonDown="ImageBox1_MouseRightButtonDown" RenderTransformOrigin="0.5,0.5"/>
+                            <Image x:Name="imageBoxfromAircraft" HorizontalAlignment="Left" Width="945" Height="565" VerticalAlignment="Top" MouseLeftButtonDown="ImageBox1_MouseLeftButtonDown" RenderTransformOrigin="0.5,0.5"/>
                             <Image x:Name="imageBoxMiniMap" HorizontalAlignment="Left" Margin="645,365,0,0" Width="300" Height="200" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"/>
                         </Grid>
                     </GroupBox>

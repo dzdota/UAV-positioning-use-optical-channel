@@ -39,7 +39,7 @@ namespace UVAPositioning
             {
                 nFeatures = 0,
                 nOctaveLayers = 5,
-                contrastThreshold = 0.1,
+                contrastThreshold = 0.04,
                 edgeThreshold = 10,
                 sigma = 1.6
             };
@@ -192,7 +192,7 @@ namespace UVAPositioning
             return result;
         }
 
-        private void ImageBox1_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void ImageBox1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Point position = e.GetPosition(imageBoxfromAircraft);
             double Transform = Math.Max(imagefromAircraft.Width / imageBoxfromAircraft.Width,
@@ -308,10 +308,38 @@ namespace UVAPositioning
             }
             catch
             { return; }
-            Image<Rgb, byte> SubMap = 
-                aircraft.NextLocate(imagefromAircraft/*oriantation.Map*/, new System.Drawing.Point(width, height));
-            SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold,parametrs));
+            if (aircraft.Locate < 1)
+            {
+                Image<Rgb, byte> SubMap =
+                    aircraft.NextLocate(imagefromAircraft/*oriantation.Map*/, new System.Drawing.Point(width, height));
+                SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold, parametrs));
+            }
 
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            imagefromAircraft = imagefromAircraft.SmoothGaussian(3, 3, 34.3, 45.3);
+            SetImageAircraft(imagefromAircraft);
+        }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            CvInvoke.FastNlMeansDenoisingColored(imagefromAircraft, imagefromAircraft);
+            SetImageAircraft(imagefromAircraft);
+
+        }
+
+        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        {
+            imagefromAircraft = imagefromAircraft.SmoothBilatral(5, 30, 50);
+            SetImageAircraft(imagefromAircraft);
+        }
+
+        private void MenuItem_Click_3(object sender, RoutedEventArgs e)
+        {
+            imagefromAircraft = imagefromAircraft.SmoothMedian(5);
+            SetImageAircraft(imagefromAircraft);
         }
     }
 }

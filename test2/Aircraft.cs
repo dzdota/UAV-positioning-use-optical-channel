@@ -46,8 +46,8 @@ namespace UVAPositioning
                     LocateontheElement = (WayLen * Locate - l) / WaysLen[index];
                     break;
                 }
-            System.Drawing.Point CenterImage = 
-                LocateontheElement != 0 ?
+            System.Drawing.Point CenterImage =
+                index != WaysLen.Count - 1 ?
                 new System.Drawing.Point(
                 (int)(LocateontheElement * (WayAircraft[index + 1].X - WayAircraft[index].X) + WayAircraft[index].X),
                 (int)(LocateontheElement * (WayAircraft[index + 1].Y - WayAircraft[index].Y) + WayAircraft[index].Y)

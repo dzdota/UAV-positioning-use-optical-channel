@@ -54,6 +54,19 @@ namespace Statistic
             return det1;
         }
 
+        static public double Sum(double[,] InputArray)
+        {
+            double sum = 0;
+            for (int i = 0; i < InputArray.GetLength(0); i++)
+            {
+                for (int j = 0; j < InputArray.GetLength(1); j++)
+                {
+                    sum += InputArray[i, j];
+                }
+            }
+            return sum;
+        }
+
         static public double[,] SubMatrix(double[,] A, int row, int col)
         {
             double[,] rez = new double[A.GetLength(0) - 1, A.GetLength(1) - 1];
