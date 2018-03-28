@@ -16,6 +16,7 @@ using Emgu.CV.CvEnum;
 
 using System.Collections.Generic;
 using System.Windows.Forms;
+using SD = System.Drawing;
 
 namespace UVAPositioning
 {
@@ -29,13 +30,15 @@ namespace UVAPositioning
         Aircraft aircraft = null;
         Image<Rgb, byte> imagefromAircraft = null;
         SIFTParametrs parametrs;
-        System.Drawing.Point GridSize;
+        SD.Point GridSize;
         double Compression;
         double Diameter;
+        string aircraftIconPath = "aircaftIcon.png";
 
 
         public MainWindow()
         {
+            
             InitializeComponent();
             parametrs = new SIFTParametrs()
             {
@@ -45,7 +48,6 @@ namespace UVAPositioning
                 edgeThreshold = 10,
                 sigma = 1.6
             };
-            
         }
 
         public void SetImageAircraft(Image<Rgb, byte> image)
@@ -54,10 +56,14 @@ namespace UVAPositioning
                 oriantation.Map.Height / imageBox1.Height);
             image = image.Resize(Transform, Inter.Area);*/
             image = ImageTransform.SetLine(image, WayAircraft, new MCvScalar(0, 0, 255));
+            if(aircraft != null)
+            {
+                image = ImageTransform.SetAircraft(image, aircraft);
+            }
             var imgbrush = new BitmapImage();
             imgbrush.BeginInit();
             var ms = new MemoryStream();
-            image.Bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            image.Bitmap.Save(ms, SD.Imaging.ImageFormat.Bmp);
             imgbrush.StreamSource = ms;
             imgbrush.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
             imgbrush.EndInit();
@@ -72,7 +78,7 @@ namespace UVAPositioning
             var imgbrush = new BitmapImage();
             imgbrush.BeginInit();
             var ms = new MemoryStream();
-            image.Bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            image.Bitmap.Save(ms, SD.Imaging.ImageFormat.Bmp);
             imgbrush.StreamSource = ms;
             imgbrush.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
             imgbrush.EndInit();
@@ -137,7 +143,7 @@ namespace UVAPositioning
             if (homography != null)
             {
                 //draw a rectangle along the projected model
-                System.Drawing.Rectangle rect = new System.Drawing.Rectangle(System.Drawing.Point.Empty, modelimage.Size);
+                SD.Rectangle rect = new SD.Rectangle(SD.Point.Empty, modelimage.Size);
                 PointF[] pts = new PointF[]
                 {
                     new PointF(rect.Left, rect.Bottom),
@@ -150,7 +156,7 @@ namespace UVAPositioning
 #if NETFX_CORE
                 Point[] points = Extensions.ConvertAll<PointF, Point>(pts, Point.Round);
 #else
-                System.Drawing.Point[] points = Array.ConvertAll<PointF, System.Drawing.Point>(pts, System.Drawing.Point.Round);
+                SD.Point[] points = Array.ConvertAll<PointF, SD.Point>(pts, SD.Point.Round);
 #endif
                 using (VectorOfPoint vp = new VectorOfPoint(points))
                 {
@@ -172,8 +178,8 @@ namespace UVAPositioning
                 var a = matches[i].ToArray();
                 if (mask.GetData(i)[0] == 0)
                     continue;
-                System.Drawing.Point p =
-                    new System.Drawing.Point((int)observedKeyPoints[a[0].QueryIdx].Point.X,
+                SD.Point p =
+                    new SD.Point((int)observedKeyPoints[a[0].QueryIdx].Point.X,
                         (int)observedKeyPoints[a[0].QueryIdx].Point.Y);
                 matrix[(int)p.Y * ypart / observedimage.Bitmap.Height, 
                     (int)p.X * xpart / observedimage.Bitmap.Width]++;
@@ -183,7 +189,7 @@ namespace UVAPositioning
                 {
                     if (matrix[y, x] >= n)
                     {
-                        System.Drawing.Rectangle rec = new System.Drawing.Rectangle(
+                        SD.Rectangle rec = new SD.Rectangle(
                             (int)x * observedimage.Bitmap.Width / xpart,
                             (int)y * observedimage.Bitmap.Height / ypart,
                             observedimage.Bitmap.Width / xpart,
@@ -250,7 +256,7 @@ namespace UVAPositioning
             {
                 return;
             }
-            GridSize = new System.Drawing.Point(ColumnCount, RowCount);
+            GridSize = new SD.Point(ColumnCount, RowCount);
             if (oriantation != null)
                 SetMap(oriantation.Map);
         }
@@ -281,7 +287,7 @@ namespace UVAPositioning
 
         private void StartFlightButton_Click(object sender, RoutedEventArgs e)
         {
-            aircraft = new Aircraft(WayAircraft, 0.05);
+            aircraft = new Aircraft(WayAircraft, 0.05, new Image<Rgb, byte>(aircraftIconPath));
         }
 
         private void RemoveWayButton_Click(object sender, RoutedEventArgs e)
@@ -314,9 +320,11 @@ namespace UVAPositioning
             { return; }
             if (aircraft.Locate < 1)
             {
+                aircraft.FindLocate();
                 Image<Rgb, byte> SubMap =
-                    aircraft.NextLocate(imagefromAircraft/*oriantation.Map*/, new System.Drawing.Point(width, height));
+                    aircraft.GetPhoto(imagefromAircraft, new SD.Point(width, height));
                 SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold, GridSize.X, GridSize.Y, persent, parametrs));
+                SetImageAircraft(imagefromAircraft);
             }
 
         }

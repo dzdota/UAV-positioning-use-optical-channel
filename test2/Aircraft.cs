@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SD = System.Drawing;
 
 namespace UVAPositioning
 {
@@ -16,10 +17,16 @@ namespace UVAPositioning
         double WayLen;
         public double Locate = 0;
         public double Step = 0.05;
-        public Aircraft(List<System.Windows.Point> WayAircraft, double Step)
+        public double angle { get; private set; }
+        public SD.Point CenterImage { get; private set; }
+
+        public Image<Rgb, byte> aircraftIcon { get; private set; }
+
+        public Aircraft(List<System.Windows.Point> WayAircraft, double Step, Image<Rgb, byte> aircraftIcon)
         {
-            this.Step = 0.1;
+            this.Step = Step;
             this.WayAircraft = WayAircraft;
+            this.aircraftIcon = aircraftIcon;
             if (Step > 0 && Step < 1)
                 this.Step = Step;
             WayLen = 0;
@@ -32,8 +39,9 @@ namespace UVAPositioning
                     ));
                 WayLen += WaysLen[WaysLen.Count - 1]; 
             }
+            FindLocate();
         }
-        public System.Drawing.Point FindLocate(out double angle)
+        public void FindLocate()
         {
             int index = 0;
             double LocateontheElement = 0;
@@ -43,13 +51,13 @@ namespace UVAPositioning
                     LocateontheElement = (WayLen * Locate - l) / WaysLen[index];
                     break;
                 }
-            System.Drawing.Point CenterImage =
+            CenterImage =
                 index != WaysLen.Count - 1 ?
-                new System.Drawing.Point(
+                new SD.Point(
                 (int)(LocateontheElement * (WayAircraft[index + 1].X - WayAircraft[index].X) + WayAircraft[index].X),
                 (int)(LocateontheElement * (WayAircraft[index + 1].Y - WayAircraft[index].Y) + WayAircraft[index].Y)
                 ) :
-                new System.Drawing.Point(
+                new SD.Point(
                 (int)(WayAircraft[index].X),
                 (int)(WayAircraft[index].Y)
                 );
@@ -57,16 +65,15 @@ namespace UVAPositioning
             double x = WayAircraft[index + 1].X - WayAircraft[index].X;
 
             angle = Math.Acos(y / Math.Sqrt(x * x + y * y));
-            return CenterImage;
+            if (x < 0)
+                angle *= -1;
         }
 
-        public Image<Rgb, byte> GetPhoto(Image<Rgb, byte> Map, System.Drawing.Point SizeOutImage)
+        public Image<Rgb, byte> GetPhoto(Image<Rgb, byte> Map, SD.Point SizeOutImage)
         {
-            double angle;
-            System.Drawing.Point CenterImage = FindLocate(out angle);
 
             Image<Rgb, byte> rotateImage = Map.Rotate(angle * 180.0 / Math.PI, new Rgb(255, 255, 255), false);
-            System.Drawing.Point centerRotateImage = new System.Drawing.Point()
+            SD.Point centerRotateImage = new SD.Point()
             {
                 X = (int)((CenterImage.X - Map.Width / 2.0) * Math.Cos(angle) - 
                 (CenterImage.Y - Map.Height / 2.0) * Math.Sin(angle) + rotateImage.Width / 2.0),
@@ -75,7 +82,7 @@ namespace UVAPositioning
             };
 
             var aircraftPhoto = new Image<Rgb, byte>(new Mat(rotateImage.Mat,
-                new System.Drawing.Rectangle(
+                new SD.Rectangle(
                     Math.Max(centerRotateImage.X - SizeOutImage.X / 2, 0),
                     Math.Max(centerRotateImage.Y - SizeOutImage.Y / 2, 0),
                     Math.Min(SizeOutImage.X, rotateImage.Mat.Width - centerRotateImage.X + SizeOutImage.X / 2 - 1),
@@ -86,9 +93,9 @@ namespace UVAPositioning
             return aircraftPhoto.Rotate(180,new Rgb(255,255,255));
         }
 
-        private System.Drawing.Point RotatePoint(System.Drawing.Point point, System.Drawing.Point center, double angle)
+        private SD.Point RotatePoint(SD.Point point, SD.Point center, double angle)
         {
-            System.Drawing.Point result = new System.Drawing.Point()
+            SD.Point result = new SD.Point()
             {
                 X = (int)((point.X - center.X) * Math.Cos(angle) - (point.X - center.X) * Math.Sin(angle)) + center.X,
                 Y = (int)((point.X - center.X) * Math.Sin(angle) + (point.X - center.X) * Math.Cos(angle)) + center.Y
