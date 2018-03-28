@@ -38,7 +38,8 @@ namespace UVAPositioning
             }
         }
 
-        public Image<Rgb, byte> ShowMatches(Image<Rgb, byte> SubMap, int k, double uniquenessThreshold, SIFTParametrs parametrs)
+        public Image<Rgb, byte> ShowMatches(Image<Rgb, byte> SubMap, int k, double uniquenessThreshold, 
+            int gridx, int gridy, double persent, SIFTParametrs parametrs)
         {
             VectorOfKeyPoint VectorSubMapKeyPoint = null;
             Mat SubMapDiscriptors = null;
@@ -54,9 +55,9 @@ namespace UVAPositioning
                     k, uniquenessThreshold, parametrs);
                 Features2DToolbox.DrawMatches(SubMap, VectorSubMapKeyPoint, Map, VectorMapKeyPoint, matches,
                     result, new MCvScalar(0, 255, 0), new MCvScalar(0, 0, 255), mask, Features2DToolbox.KeypointDrawType.DrawRichKeypoints);
-                double correct = MatchCorrect(result, VectorSubMapKeyPoint, matches, mask);
-                Point point = FoundCenter(GetMapPoint(matches, mask));
-                if ((Double.IsNaN(correct) || correct < 0.1) && (!double.IsNaN(point.X) && !double.IsNaN(point.Y)))
+                PointF[] points = GetMapPoint(matches, mask);
+                Point point = FoundCenter(points);
+                if (MatchCorrect(Map.Mat, points, gridx, gridy, persent) && (!double.IsNaN(point.X) && !double.IsNaN(point.Y)))
                 {
                     try
                     {
@@ -146,46 +147,26 @@ namespace UVAPositioning
             return OutputVector.ToArray();
         }
 
-        private double MatchCorrect(Mat image, VectorOfKeyPoint aircraftKeyPoint, VectorOfVectorOfDMatch matches, Mat mask)
+        private bool MatchCorrect(Mat image, PointF[] points, int gridx, int gridy, double persent)
         {
-            List<Line> lines = new List<Line>();
-            for (int i = 0; i < matches.Size; i++)
+            double[,] f = new double[gridx, gridy];
+            double sizex = (double)image.Width / gridx;
+            double sizey = (double)image.Height/ gridy;
+            for (int i = 0; i < points.Length; i++)
             {
-                var match = matches[i].ToArray();
-                if (mask.GetData(i)[0] == 0)
-                    continue;
-                lines.Add(new Line()
-                {
-                    X1 = VectorMapKeyPoint[match[0].QueryIdx].Point.X,
-                    Y1 = VectorMapKeyPoint[match[0].QueryIdx].Point.Y,
-                    X2 = aircraftKeyPoint[match[0].TrainIdx].Point.X + image.Width,
-                    Y2 = aircraftKeyPoint[match[0].TrainIdx].Point.Y
-                });
+                f[(int)(points[i].X / sizex), (int)(points[i].Y / sizey)] += 1.0 / points.Length;
             }
-            double[,] Sin = MatrixSin(lines.ToArray());
-            double Sum = Statistic.Matrix.Sum(Sin);
-            return Sum / Math.Pow(lines.Count, 2);
-        }
-
-        private double[,] MatrixSin(Line[] lines)
-        {
-            double[,] Sin = new double[lines.Length, lines.Length];
-            for (int i = 0; i < lines.Length; i++)
+            double max = 0;
+            for (int i = 0; i < gridx;i++)
             {
-                Sin[i, i] = 0;
-                for (int j = i + 1; j < lines.Length; j++)
+                for (int j = 0; j < gridy; j++)
                 {
-                    double ax = lines[i].X2 - lines[i].X1;
-                    double ay = lines[i].Y2 - lines[i].Y1;
-                    double bx = lines[j].X2 - lines[j].X1;
-                    double by = lines[j].Y2 - lines[j].Y1;
-                    Sin[i, j] = (ax * bx + ay * by) / (Math.Sqrt(ax * ax + ay * ay) * Math.Sqrt(bx * bx + by * by));
-                    Sin[i, j] = Math.Sqrt(1 - Math.Pow(Sin[i, j], 2));
-                    Sin[j, i] = Sin[i, j];
+                    max = Math.Max(max, f[i, j]);
                 }
             }
-            return Sin;
+            return max >= persent;
         }
+        
         private PointF[] GetMapPoint(VectorOfVectorOfDMatch matches, Mat mask)
         {
             List<PointF> points = new List<PointF>();

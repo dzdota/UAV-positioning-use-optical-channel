@@ -4,6 +4,7 @@ using Emgu.CV.Features2D;
 using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,21 +15,21 @@ namespace UVAPositioning
     {
 
 
-        static public Image<Rgb, byte> SetGrid(Image<Rgb, byte> image, System.Drawing.Point GridSize)
+        static public Image<Rgb, byte> SetGrid(Image<Rgb, byte> image, System.Drawing.Point GridSize, Size size)
         {
             Image<Rgb, byte> result = image.Clone();
             for (int c = 1; c < GridSize.X; c++)
             {
                 CvInvoke.Line(result,
-                    new System.Drawing.Point(c * result.Width / GridSize.X, 0),
-                    new System.Drawing.Point(c * result.Width / GridSize.X, result.Height),
+                    new System.Drawing.Point(c * size.Width / GridSize.X, 0),
+                    new System.Drawing.Point(c * size.Width / GridSize.X, size.Height),
                     new MCvScalar(125, 125, 125), 2);
             }
             for (int r = 1; r < GridSize.Y; r++)
             {
                 CvInvoke.Line(result,
-                    new System.Drawing.Point(0, r * result.Height / GridSize.Y),
-                    new System.Drawing.Point(result.Width, r * result.Height / GridSize.Y),
+                    new System.Drawing.Point(0, r * size.Height / GridSize.Y),
+                    new System.Drawing.Point(size.Width, r * size.Height / GridSize.Y),
                     new MCvScalar(125, 125, 125), 2);
             }
             return result;

@@ -15,7 +15,7 @@ namespace UVAPositioning
         List<double> WaysLen = new List<double>();
         double WayLen;
         public double Locate = 0;
-        public double Step = 0.1;
+        public double Step = 0.05;
         public Aircraft(List<System.Windows.Point> WayAircraft, double Step)
         {
             this.Step = 0.1;
@@ -33,14 +33,11 @@ namespace UVAPositioning
                 WayLen += WaysLen[WaysLen.Count - 1]; 
             }
         }
-
-        public Image<Rgb, byte> NextLocate(Image<Rgb, byte> Map, System.Drawing.Point SizeOutImage)
+        public System.Drawing.Point FindLocate(out double angle)
         {
-            //Mat res = new Mat(Map.Mat, )
-            //Image<Rgb, byte> result = new Image<Rgb, byte>(;
             int index = 0;
             double LocateontheElement = 0;
-            for (double l = 0; index < WaysLen.Count; l += WaysLen[index], index++)  
+            for (double l = 0; index < WaysLen.Count; l += WaysLen[index], index++)
                 if (l + WaysLen[index] >= WayLen * Locate)
                 {
                     LocateontheElement = (WayLen * Locate - l) / WaysLen[index];
@@ -55,27 +52,38 @@ namespace UVAPositioning
                 new System.Drawing.Point(
                 (int)(WayAircraft[index].X),
                 (int)(WayAircraft[index].Y)
-                );/*
-            double angle = Math.Atan((WayAircraft[index + 1].Y - WayAircraft[index].Y) / (WayAircraft[index + 1].X - WayAircraft[index].X));
-            System.Drawing.Point UpperLeft = RotatePoint(
-                new System.Drawing.Point(CenterImage.X - SizeOutImage.X / 2, CenterImage.Y - SizeOutImage.Y / 2), CenterImage, angle);
-            System.Drawing.Point UpperRight = RotatePoint(
-                new System.Drawing.Point(CenterImage.X + SizeOutImage.X / 2, CenterImage.Y - SizeOutImage.Y / 2), CenterImage, angle);
-            System.Drawing.Point BottomLeft = RotatePoint(
-                new System.Drawing.Point(CenterImage.X - SizeOutImage.X / 2, CenterImage.Y + SizeOutImage.Y / 2), CenterImage, angle);
-            System.Drawing.Point BottomRight = RotatePoint(
-                new System.Drawing.Point(CenterImage.X + SizeOutImage.X / 2, CenterImage.Y + SizeOutImage.Y / 2), CenterImage, angle);*/
+                );
+            double y = WayAircraft[index + 1].Y - WayAircraft[index].Y;
+            double x = WayAircraft[index + 1].X - WayAircraft[index].X;
 
-            Locate += Step;
+            angle = Math.Acos(y / Math.Sqrt(x * x + y * y));
+            return CenterImage;
+        }
 
-            return new Image<Rgb, byte>( new Mat(Map.Mat,
+        public Image<Rgb, byte> GetPhoto(Image<Rgb, byte> Map, System.Drawing.Point SizeOutImage)
+        {
+            double angle;
+            System.Drawing.Point CenterImage = FindLocate(out angle);
+
+            Image<Rgb, byte> rotateImage = Map.Rotate(angle * 180.0 / Math.PI, new Rgb(255, 255, 255), false);
+            System.Drawing.Point centerRotateImage = new System.Drawing.Point()
+            {
+                X = (int)((CenterImage.X - Map.Width / 2.0) * Math.Cos(angle) - 
+                (CenterImage.Y - Map.Height / 2.0) * Math.Sin(angle) + rotateImage.Width / 2.0),
+                Y= (int)((CenterImage.X - Map.Width / 2.0) * Math.Sin(angle) +
+                (CenterImage.Y - Map.Height / 2.0) * Math.Cos(angle) + rotateImage.Height/ 2.0)
+            };
+
+            var aircraftPhoto = new Image<Rgb, byte>(new Mat(rotateImage.Mat,
                 new System.Drawing.Rectangle(
-                    Math.Max(CenterImage.X - SizeOutImage.X / 2, 0),
-                    Math.Max(CenterImage.Y - SizeOutImage.Y / 2, 0),
-                    Math.Min(SizeOutImage.X, Map.Mat.Width -  CenterImage.X + SizeOutImage.X / 2 - 1),
-                    Math.Min(SizeOutImage.Y, Map.Mat.Height - CenterImage.Y + SizeOutImage.Y / 2 - 1)
+                    Math.Max(centerRotateImage.X - SizeOutImage.X / 2, 0),
+                    Math.Max(centerRotateImage.Y - SizeOutImage.Y / 2, 0),
+                    Math.Min(SizeOutImage.X, rotateImage.Mat.Width - centerRotateImage.X + SizeOutImage.X / 2 - 1),
+                    Math.Min(SizeOutImage.Y, rotateImage.Mat.Height - centerRotateImage.Y + SizeOutImage.Y / 2 - 1)
                     )).Bitmap
                     );
+            Locate += Step;
+            return aircraftPhoto.Rotate(180,new Rgb(255,255,255));
         }
 
         private System.Drawing.Point RotatePoint(System.Drawing.Point point, System.Drawing.Point center, double angle)

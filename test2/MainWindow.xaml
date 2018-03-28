@@ -8,10 +8,11 @@
         Title="MainWindow" Height="720" Width="1300">
     <Window.Resources>
         <ContextMenu x:Key="AircraftMenu">
-            <MenuItem Header="Згладити за допомогою Гаусяна" Click="MenuItem_Click"/>
-            <MenuItem Header="Двухсторонье згладжування" Click="MenuItem_Click_2"/>
-            <MenuItem Header="Згладити за допомогою Медіан" Click="MenuItem_Click_3"/>
-            <MenuItem Header="Додати шум"  Click="MenuItem_Click_1"/>
+            <MenuItem Header="Згладити за допомогою Гаусяна" Click="MenuItem_Click_SmoothGaussian"/>
+            <MenuItem Header="Двухсторонье згладжування" Click="MenuItem_Click_SmoothBilatral"/>
+            <MenuItem Header="Згладити за допомогою Медіан" Click="MenuItem_Click_SmoothMedian"/>
+            <MenuItem Header="Прибрати шум"  Click="MenuItem_Click_Remove_Noise"/>
+            <MenuItem Header="Додати шум"  Click="MenuItem_Click_Add_Noise"/>
         </ContextMenu>
     </Window.Resources>
     <Grid>
@@ -54,7 +55,8 @@
                         <Grid>
                             <TextBlock HorizontalAlignment="Left" Margin="10,20,0,0" TextWrapping="Wrap" Text="Розмір камеры" VerticalAlignment="Top"/>
                             <TextBox Name="CameraHeightTextBox" HorizontalAlignment="Left" Height="20" Margin="130,20,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="50"/>
-                            <TextBox Name="CameraWidthTextBox" HorizontalAlignment="Left" Height="20" Margin="195,20,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="50" />
+                            <TextBox Name="CameraWidthTextBox" HorizontalAlignment="Left" Height="20" Margin="185,20,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="50" />
+                            <TextBox Name="PersentFromFind" HorizontalAlignment="Left" Height="20" Margin="240,20,0,0" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Top" Width="40" />
 
                             <TextBlock HorizontalAlignment="Left" Margin="10,50,0,0" TextWrapping="Wrap" Text="uniquenessThreshold" VerticalAlignment="Top"/>
                             <TextBox Name="UniquenessThresholdTextBox" HorizontalAlignment="Left" Height="20" Margin="130,50,0,0" TextWrapping="Wrap" Text="0.8" VerticalAlignment="Top" Width="50"/>
@@ -70,7 +72,7 @@
         <GroupBox Margin="5,5,5,2" Height="40" VerticalAlignment="Bottom" BorderBrush="Black">
             <Grid>
                 <Button Content="Запустити літак" HorizontalAlignment="Right" Margin="2,2,2,2" VerticalAlignment="Center" Width="95" Height="22" Click="StartFlightButton_Click"/>
-                <Button Content="Наступный крок" HorizontalAlignment="Right" Margin="0,0,112,6" VerticalAlignment="Bottom" Width="95" Height="22" Click="NextStepButton_Click"/>
+                <Button Content="Наступный крок" HorizontalAlignment="Right" Margin="0,6,112,6" Width="95" Click="NextStepButton_Click"/>
                 <Button Content="Стерти шлях" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Center" Width="80" Height="22" Click="RemoveWayButton_Click"/>
                 <Button Content="Стерти останню точку" HorizontalAlignment="Left" Margin="95,5,5,5" VerticalAlignment="Center" Width="130" Height="22" Click="RemovelastPointButton_Click"/>
             </Grid>

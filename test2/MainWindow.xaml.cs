@@ -32,6 +32,8 @@ namespace UVAPositioning
         System.Drawing.Point GridSize;
         double Compression;
         double Diameter;
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -64,7 +66,7 @@ namespace UVAPositioning
         public void SetMap(Image<Rgb, byte> image)
         {
             if (ShowGridCheckBox.IsChecked == true)
-                image = ImageTransform.SetGrid(image, GridSize);
+                image = ImageTransform.SetGrid(image, GridSize, oriantation.Map.Size);
             if (ShowKeyPointCheckBox.IsChecked == true && oriantation != null)
                 image = ImageTransform.SetKeyPont(image, oriantation, new Bgr(255, 0, 0));
             var imgbrush = new BitmapImage();
@@ -299,12 +301,14 @@ namespace UVAPositioning
         {
             int width, height,k;
             double uniquenessThreshold;
+            double persent;
             try
             {
                 width = Convert.ToInt32(CameraWidthTextBox.Text);
                 height = Convert.ToInt32(CameraHeightTextBox.Text);
                 k = Convert.ToInt32(kTextBox.Text);
                 uniquenessThreshold = Convert.ToDouble(UniquenessThresholdTextBox.Text);
+                persent = Convert.ToDouble(PersentFromFind.Text);
             }
             catch
             { return; }
@@ -312,34 +316,43 @@ namespace UVAPositioning
             {
                 Image<Rgb, byte> SubMap =
                     aircraft.NextLocate(imagefromAircraft/*oriantation.Map*/, new System.Drawing.Point(width, height));
-                SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold, parametrs));
+                SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold, GridSize.X, GridSize.Y, persent, parametrs));
             }
 
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_Click_SmoothGaussian(object sender, RoutedEventArgs e)
         {
             imagefromAircraft = imagefromAircraft.SmoothGaussian(3, 3, 34.3, 45.3);
             SetImageAircraft(imagefromAircraft);
         }
 
-        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        private void MenuItem_Click_Remove_Noise(object sender, RoutedEventArgs e)
         {
             CvInvoke.FastNlMeansDenoisingColored(imagefromAircraft, imagefromAircraft);
             SetImageAircraft(imagefromAircraft);
 
         }
 
-        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        private void MenuItem_Click_SmoothBilatral(object sender, RoutedEventArgs e)
         {
             imagefromAircraft = imagefromAircraft.SmoothBilatral(5, 30, 50);
             SetImageAircraft(imagefromAircraft);
         }
 
-        private void MenuItem_Click_3(object sender, RoutedEventArgs e)
+        private void MenuItem_Click_SmoothMedian(object sender, RoutedEventArgs e)
         {
             imagefromAircraft = imagefromAircraft.SmoothMedian(5);
             SetImageAircraft(imagefromAircraft);
+        }
+
+        private void MenuItem_Click_Add_Noise(object sender, RoutedEventArgs e)
+        {
+            Image<Rgb, byte> noise = new Image<Rgb, byte>(imagefromAircraft.Bitmap);
+            noise.SetRandNormal(new MCvScalar(0,0,0), new MCvScalar(30, 30, 30));
+            imagefromAircraft = imagefromAircraft + noise;
+            SetImageAircraft(imagefromAircraft);
+
         }
     }
 }
