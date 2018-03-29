@@ -9,18 +9,42 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SD = System.Drawing;
+using SW = System.Windows;
 
 namespace UVAPositioning
 {
+    public class Icon
+    {
+        public Image<Rgb, byte> iconImage { get; private set; }
+        public SD.Point coordinate { get; private set; }
+        public Icon(Image<Rgb, byte> iconImage, SD.Point coordinate)
+        {
+            this.iconImage = iconImage;
+            this.coordinate = coordinate;
+        }
+    }
     static class ImageTransform
     {
 
+        static public Image<Rgb, byte> SetIcon(Image<Rgb, byte> image, Image<Rgb, byte> icon, SD.Point location)
+        {
+            Image<Rgb, byte> imageWithIcon = new Image<Rgb, byte>(image.Size);
+            var resizeIcon = icon.Resize(0.08 * image.Height / icon.Height, Inter.Lanczos4);
+            var roi = image.ROI;
+            Bitmap imageWithIconBitmap = imageWithIcon.Bitmap;
+            using (Graphics gr = Graphics.FromImage(imageWithIconBitmap))
+            {
+                gr.DrawImage(resizeIcon.Bitmap, new PointF(location.X - resizeIcon.Width / 2.0f, location.Y - resizeIcon.Height / 2.0f));
+            }
+            imageWithIcon = new Image<Rgb, byte>(imageWithIconBitmap);
+            return image + imageWithIcon;
+        }
 
         static public Image<Rgb, byte> SetAircraft(Image<Rgb, byte> image, Aircraft aircraft)
         {
             Image<Rgb, byte> imageWithIcon = new Image<Rgb, byte>(image.Size);
-            var rotateIcon = aircraft.aircraftIcon.Rotate(180 - aircraft.angle * 180 / Math.PI, new Rgb(Color.FromArgb(0, 0, 0, 0)));
-            var resizeIcon = rotateIcon.Resize(0.08 * image.Height / aircraft.aircraftIcon.Height, Inter.Lanczos4);
+            var rotateIcon = aircraft.AircraftIcon.Rotate(180 - aircraft.Angle * 180 / Math.PI, new Rgb(Color.FromArgb(0, 0, 0, 0)));
+            var resizeIcon = rotateIcon.Resize(0.08 * image.Height / aircraft.AircraftIcon.Height, Inter.Lanczos4);
             var roi = image.ROI;
             Bitmap imageWithIconBitmap = imageWithIcon.Bitmap;
             using (Graphics gr = Graphics.FromImage(imageWithIconBitmap))
@@ -30,11 +54,12 @@ namespace UVAPositioning
                     X = (int)(aircraft.CenterImage.X - resizeIcon.Width / 2.0),
                     Y = (int)(aircraft.CenterImage.Y - resizeIcon.Height / 2.0)
                 };
-                gr.DrawImage(resizeIcon.Bitmap, pjjoint);
+                gr.DrawImage(resizeIcon.Bitmap, point);
             }
             imageWithIcon = new Image<Rgb, byte>(imageWithIconBitmap);
             return image + imageWithIcon;
         }
+
         static public Image<Rgb, byte> SetGrid(Image<Rgb, byte> image, System.Drawing.Point GridSize, Size size)
         {
             Image<Rgb, byte> result = image.Clone();

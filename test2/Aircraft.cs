@@ -17,16 +17,16 @@ namespace UVAPositioning
         double WayLen;
         public double Locate = 0;
         public double Step = 0.05;
-        public double angle { get; private set; }
+        public double Angle { get; private set; }
         public SD.Point CenterImage { get; private set; }
 
-        public Image<Rgb, byte> aircraftIcon { get; private set; }
+        public Image<Rgb, byte> AircraftIcon { get; private set; }
 
         public Aircraft(List<System.Windows.Point> WayAircraft, double Step, Image<Rgb, byte> aircraftIcon)
         {
             this.Step = Step;
             this.WayAircraft = WayAircraft;
-            this.aircraftIcon = aircraftIcon;
+            this.AircraftIcon = aircraftIcon;
             if (Step > 0 && Step < 1)
                 this.Step = Step;
             WayLen = 0;
@@ -64,21 +64,21 @@ namespace UVAPositioning
             double y = WayAircraft[index + 1].Y - WayAircraft[index].Y;
             double x = WayAircraft[index + 1].X - WayAircraft[index].X;
 
-            angle = Math.Acos(y / Math.Sqrt(x * x + y * y));
+            Angle = Math.Acos(y / Math.Sqrt(x * x + y * y));
             if (x < 0)
-                angle *= -1;
+                Angle *= -1;
         }
 
         public Image<Rgb, byte> GetPhoto(Image<Rgb, byte> Map, SD.Point SizeOutImage)
         {
 
-            Image<Rgb, byte> rotateImage = Map.Rotate(angle * 180.0 / Math.PI, new Rgb(255, 255, 255), false);
+            Image<Rgb, byte> rotateImage = Map.Rotate(Angle * 180.0 / Math.PI, new Rgb(255, 255, 255), false);
             SD.Point centerRotateImage = new SD.Point()
             {
-                X = (int)((CenterImage.X - Map.Width / 2.0) * Math.Cos(angle) - 
-                (CenterImage.Y - Map.Height / 2.0) * Math.Sin(angle) + rotateImage.Width / 2.0),
-                Y= (int)((CenterImage.X - Map.Width / 2.0) * Math.Sin(angle) +
-                (CenterImage.Y - Map.Height / 2.0) * Math.Cos(angle) + rotateImage.Height/ 2.0)
+                X = (int)((CenterImage.X - Map.Width / 2.0) * Math.Cos(Angle) - 
+                (CenterImage.Y - Map.Height / 2.0) * Math.Sin(Angle) + rotateImage.Width / 2.0),
+                Y= (int)((CenterImage.X - Map.Width / 2.0) * Math.Sin(Angle) +
+                (CenterImage.Y - Map.Height / 2.0) * Math.Cos(Angle) + rotateImage.Height/ 2.0)
             };
 
             var aircraftPhoto = new Image<Rgb, byte>(new Mat(rotateImage.Mat,

@@ -7,7 +7,11 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1300">
     <Window.Resources>
-        <ContextMenu x:Key="AircraftMenu">
+        <ContextMenu x:Name="menu" x:Key="AircraftMenu">
+            <MenuItem Header="Задати точку втрачення GPS сигналу" Click="SetGPSLost_Click"/>
+            <MenuItem Header="Задати базу" Click="SetBase_Click"/>
+            <MenuItem Header="Стерти базу і точку " Click="ClearIcon_Click"/>
+            <MenuItem Name="findBase" Header="Запустити процедуру пошуку бази" Click="FindBase_Click"/>
             <MenuItem Header="Згладити за допомогою Гаусяна" Click="MenuItem_Click_SmoothGaussian"/>
             <MenuItem Header="Двухсторонье згладжування" Click="MenuItem_Click_SmoothBilatral"/>
             <MenuItem Header="Згладити за допомогою Медіан" Click="MenuItem_Click_SmoothMedian"/>

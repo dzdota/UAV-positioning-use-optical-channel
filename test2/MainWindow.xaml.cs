@@ -34,11 +34,13 @@ namespace UVAPositioning
         double Compression;
         double Diameter;
         string aircraftIconPath = "aircaftIcon.png";
+        Icon baseIcon;
+        Icon lostGPSIcon;
 
 
         public MainWindow()
         {
-            
+
             InitializeComponent();
             parametrs = new SIFTParametrs()
             {
@@ -48,6 +50,21 @@ namespace UVAPositioning
                 edgeThreshold = 10,
                 sigma = 1.6
             };
+            /*
+            Bitmap awad = new Bitmap("gps-disconnected.png");
+            for (int i = 0; i < awad.Width; i++)
+                for (int j = 0; j < awad.Height; j++)
+                {
+                    var col = awad.GetPixel(i, j);
+                    if (col.A > 200 ||( col.R == 0 && col.G == 0 && col.B == 0))
+                        awad.SetPixel(i, j, Color.FromArgb(0, 0, 255));
+                    else
+                        awad.SetPixel(i, j, Color.FromArgb(0, 0, 0, 0));
+
+
+                }
+            awad.Save("lost-signalIcon.png", SD.Imaging.ImageFormat.Png);
+            */
         }
 
         public void SetImageAircraft(Image<Rgb, byte> image)
@@ -60,6 +77,15 @@ namespace UVAPositioning
             {
                 image = ImageTransform.SetAircraft(image, aircraft);
             }
+            if (baseIcon != null)
+            {
+                image = ImageTransform.SetIcon(image, baseIcon.iconImage, baseIcon.coordinate);
+            }
+            if (lostGPSIcon != null)
+            {
+                image = ImageTransform.SetIcon(image, lostGPSIcon.iconImage, lostGPSIcon.coordinate);
+            }
+            if (baseIcon != null) { }
             var imgbrush = new BitmapImage();
             imgbrush.BeginInit();
             var ms = new MemoryStream();
@@ -361,6 +387,41 @@ namespace UVAPositioning
             imagefromAircraft = imagefromAircraft + noise;
             SetImageAircraft(imagefromAircraft);
 
+        }
+
+        private void FindBase_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SetBase_Click(object sender, RoutedEventArgs e)
+        {
+            SD.Point screenPoint = Control.MousePosition;
+            System.Windows.Point position = imageBoxfromAircraft.PointFromScreen(new System.Windows.Point(screenPoint.X, screenPoint.Y));
+            double Transform = Math.Max(imagefromAircraft.Width / imageBoxfromAircraft.Width,
+                imagefromAircraft.Height / imageBoxfromAircraft.Height);
+            position = new System.Windows.Point(position.X * Transform,
+                position.Y * Transform);
+            baseIcon = new UVAPositioning.Icon(new Image<Rgb, byte>("base.png"), new SD.Point((int)position.X, (int)position.Y));
+            SetImageAircraft(imagefromAircraft);
+        }
+
+        private void SetGPSLost_Click(object sender, RoutedEventArgs e)
+        {
+            SD.Point screenPoint = Control.MousePosition;
+            System.Windows.Point position = imageBoxfromAircraft.PointFromScreen(new System.Windows.Point(screenPoint.X, screenPoint.Y));
+            double Transform = Math.Max(imagefromAircraft.Width / imageBoxfromAircraft.Width,
+                imagefromAircraft.Height / imageBoxfromAircraft.Height);
+            position = new System.Windows.Point(position.X * Transform,
+                position.Y * Transform);
+            lostGPSIcon = new UVAPositioning.Icon(new Image<Rgb, byte>("lost-signalIcon.png"), new SD.Point((int)position.X, (int)position.Y));
+            SetImageAircraft(imagefromAircraft);
+        }
+
+        private void ClearIcon_Click(object sender, RoutedEventArgs e)
+        {
+            lostGPSIcon = baseIcon = null;
+            SetImageAircraft(imagefromAircraft);
         }
     }
 }
