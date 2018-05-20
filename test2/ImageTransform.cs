@@ -13,19 +13,17 @@ using SW = System.Windows;
 
 namespace UVAPositioning
 {
-    public class Icon
-    {
-        public Image<Rgb, byte> iconImage { get; private set; }
-        public SD.Point coordinate { get; private set; }
-        public Icon(Image<Rgb, byte> iconImage, SD.Point coordinate)
-        {
-            this.iconImage = iconImage;
-            this.coordinate = coordinate;
-        }
-    }
     static class ImageTransform
     {
 
+        static public SD.Point SWtoSD(SW.Point point)
+        {
+            return new SD.Point((int)(point.X + 0.5), (int)(point.Y + 0.5));
+        }
+        static public SW.Point SDtoSW(SD.Point point)
+        {
+            return new SW.Point(point.X , point.Y);
+        }
         static public Image<Rgb, byte> SetIcon(Image<Rgb, byte> image, Image<Rgb, byte> icon, SD.Point location)
         {
             Image<Rgb, byte> imageWithIcon = new Image<Rgb, byte>(image.Size);

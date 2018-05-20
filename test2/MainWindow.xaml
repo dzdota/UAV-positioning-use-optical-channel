@@ -11,7 +11,6 @@
             <MenuItem Header="Задати точку втрачення GPS сигналу" Click="SetGPSLost_Click"/>
             <MenuItem Header="Задати базу" Click="SetBase_Click"/>
             <MenuItem Header="Стерти базу і точку " Click="ClearIcon_Click"/>
-            <MenuItem Name="findBase" Header="Запустити процедуру пошуку бази" Click="FindBase_Click"/>
             <MenuItem Header="Згладити за допомогою Гаусяна" Click="MenuItem_Click_SmoothGaussian"/>
             <MenuItem Header="Двухсторонье згладжування" Click="MenuItem_Click_SmoothBilatral"/>
             <MenuItem Header="Згладити за допомогою Медіан" Click="MenuItem_Click_SmoothMedian"/>
@@ -76,7 +75,7 @@
         <GroupBox Margin="5,5,5,2" Height="40" VerticalAlignment="Bottom" BorderBrush="Black">
             <Grid>
                 <Button Content="Запустити літак" HorizontalAlignment="Right" Margin="2,2,2,2" VerticalAlignment="Center" Width="95" Height="22" Click="StartFlightButton_Click"/>
-                <Button Content="Наступный крок" HorizontalAlignment="Right" Margin="0,6,112,6" Width="95" Click="NextStepButton_Click"/>
+                <Button Content="Наступный крок" HorizontalAlignment="Right" Margin="0,6,112,0" Width="95" Click="NextStepButton_Click" Height="22" VerticalAlignment="Top"/>
                 <Button Content="Стерти шлях" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Center" Width="80" Height="22" Click="RemoveWayButton_Click"/>
                 <Button Content="Стерти останню точку" HorizontalAlignment="Left" Margin="95,5,5,5" VerticalAlignment="Center" Width="130" Height="22" Click="RemovelastPointButton_Click"/>
             </Grid>

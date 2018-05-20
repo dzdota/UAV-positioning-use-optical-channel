@@ -92,6 +92,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Navigation.cs" />
     <Compile Include="Statistic\Matrix.cs" />
     <Compile Include="Statistic\RegresType.cs" />
     <Compile Include="Statistic\SimpleClass.cs" />

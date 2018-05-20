@@ -12,11 +12,12 @@ namespace UVAPositioning
 
     class Aircraft
     {
-        List<System.Windows.Point> WayAircraft = new List<System.Windows.Point>();
+        public List<System.Windows.Point> WayAircraft = new List<System.Windows.Point>();
         List<double> WaysLen = new List<double>();
         double WayLen;
         public double Locate = 0;
         public double Step = 0.05;
+        public double Length => WayAircraft.Count;
         public double Angle { get; private set; }
         public SD.Point CenterImage { get; private set; }
 

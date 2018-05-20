@@ -17,6 +17,7 @@ using Emgu.CV.CvEnum;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using SD = System.Drawing;
+using SW = System.Windows;
 
 namespace UVAPositioning
 {
@@ -28,6 +29,7 @@ namespace UVAPositioning
         List<System.Windows.Point> WayAircraft = new List<System.Windows.Point>();
         OriantatioOnMap oriantation;
         Aircraft aircraft = null;
+        Navigation navigation = null;
         Image<Rgb, byte> imagefromAircraft = null;
         SIFTParametrs parametrs;
         SD.Point GridSize;
@@ -36,6 +38,8 @@ namespace UVAPositioning
         string aircraftIconPath = "aircaftIcon.png";
         Icon baseIcon;
         Icon lostGPSIcon;
+
+        object temp;
 
 
         public MainWindow()
@@ -50,6 +54,7 @@ namespace UVAPositioning
                 edgeThreshold = 10,
                 sigma = 1.6
             };
+
             /*
             Bitmap awad = new Bitmap("gps-disconnected.png");
             for (int i = 0; i < awad.Width; i++)
@@ -79,11 +84,11 @@ namespace UVAPositioning
             }
             if (baseIcon != null)
             {
-                image = ImageTransform.SetIcon(image, baseIcon.iconImage, baseIcon.coordinate);
+                image = ImageTransform.SetIcon(image, baseIcon.IconImage, ImageTransform.SWtoSD(baseIcon.Coordinate));
             }
             if (lostGPSIcon != null)
             {
-                image = ImageTransform.SetIcon(image, lostGPSIcon.iconImage, lostGPSIcon.coordinate);
+                image = ImageTransform.SetIcon(image, lostGPSIcon.IconImage, ImageTransform.SWtoSD(lostGPSIcon.Coordinate));
             }
             if (baseIcon != null) { }
             var imgbrush = new BitmapImage();
@@ -344,14 +349,26 @@ namespace UVAPositioning
             }
             catch
             { return; }
-            if (aircraft.Locate < 1)
+            System.Windows.Point? locationInMap;
+            if (navigation != null)
+            {
+                SW.Point location = navigation.NextLocation();
+                WayAircraft.Add(location);
+                Image<Rgb, byte> SubMap =
+                    navigation.GetPhoto(imagefromAircraft, location, new SW.Point(width, height));
+                SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold, GridSize.X, GridSize.Y, persent, parametrs, out locationInMap));
+                if (locationInMap != null)
+                    navigation.Location = location;
+            }
+            else  if (aircraft != null && aircraft.Locate < 1)
             {
                 aircraft.FindLocate();
                 Image<Rgb, byte> SubMap =
                     aircraft.GetPhoto(imagefromAircraft, new SD.Point(width, height));
-                SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold, GridSize.X, GridSize.Y, persent, parametrs));
-                SetImageAircraft(imagefromAircraft);
+                SetMap(oriantation.ShowMatches(SubMap, k, uniquenessThreshold, GridSize.X, GridSize.Y, persent, parametrs, out locationInMap));
             }
+
+            SetImageAircraft(imagefromAircraft);
 
         }
 
@@ -389,11 +406,6 @@ namespace UVAPositioning
 
         }
 
-        private void FindBase_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void SetBase_Click(object sender, RoutedEventArgs e)
         {
             SD.Point screenPoint = Control.MousePosition;
@@ -402,8 +414,9 @@ namespace UVAPositioning
                 imagefromAircraft.Height / imageBoxfromAircraft.Height);
             position = new System.Windows.Point(position.X * Transform,
                 position.Y * Transform);
-            baseIcon = new UVAPositioning.Icon(new Image<Rgb, byte>("base.png"), new SD.Point((int)position.X, (int)position.Y));
+            baseIcon = new UVAPositioning.Icon(new Image<Rgb, byte>("base.png"), position);
             SetImageAircraft(imagefromAircraft);
+            SetNavigation();
         }
 
         private void SetGPSLost_Click(object sender, RoutedEventArgs e)
@@ -414,13 +427,33 @@ namespace UVAPositioning
                 imagefromAircraft.Height / imageBoxfromAircraft.Height);
             position = new System.Windows.Point(position.X * Transform,
                 position.Y * Transform);
-            lostGPSIcon = new UVAPositioning.Icon(new Image<Rgb, byte>("lost-signalIcon.png"), new SD.Point((int)position.X, (int)position.Y));
+            lostGPSIcon = new UVAPositioning.Icon(new Image<Rgb, byte>("lost-signalIcon.png"),position);
             SetImageAircraft(imagefromAircraft);
+            SetNavigation();
+        }
+
+        private void SetNavigation()
+        {
+            if (oriantation != null && baseIcon != null && lostGPSIcon != null) {
+
+                System.Windows.Point cameraSize = new System.Windows.Point();
+                try
+                {
+                    cameraSize.X = Convert.ToInt32(CameraWidthTextBox.Text);
+                    cameraSize.Y = Convert.ToInt32(CameraHeightTextBox.Text);
+                }
+                catch
+                { return; }
+                navigation = new Navigation(oriantation, baseIcon, lostGPSIcon, cameraSize);
+            }
         }
 
         private void ClearIcon_Click(object sender, RoutedEventArgs e)
         {
-            lostGPSIcon = baseIcon = null;
+            lostGPSIcon = null;
+            baseIcon = null;
+            navigation = null;
+            WayAircraft.Clear();
             SetImageAircraft(imagefromAircraft);
         }
     }

@@ -10,6 +10,7 @@ using Emgu.CV.Flann;
 using Emgu.CV.Features2D;
 using Emgu.CV.CvEnum;
 using System.Windows.Shapes;
+using SW = System.Windows;
 
 namespace UVAPositioning
 {
@@ -39,8 +40,9 @@ namespace UVAPositioning
         }
 
         public Image<Rgb, byte> ShowMatches(Image<Rgb, byte> SubMap, int k, double uniquenessThreshold, 
-            int gridx, int gridy, double persent, SIFTParametrs parametrs)
+            int gridx, int gridy, double persent, SIFTParametrs parametrs, out System.Windows.Point? location)
         {
+            location = null;
             VectorOfKeyPoint VectorSubMapKeyPoint = null;
             Mat SubMapDiscriptors = null;
             VectorOfVectorOfDMatch matches = null;
@@ -62,6 +64,7 @@ namespace UVAPositioning
                     try
                     {
                         CvInvoke.Circle(result, point, 13, new MCvScalar(255, 0, 0), 10);
+                        location = ImageTransform.SDtoSW(point);
                     }
                     catch { }
                 }
